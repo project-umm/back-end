@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "token")
+@Table(name = "tokens")
 public class Token extends BaseEntity {
 
     @Id

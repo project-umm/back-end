@@ -19,38 +19,38 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    private ResponseEntity<BaseResponse> signup(@RequestBody SignUpRequest signUpRequest) {
-
+    public ResponseEntity<BaseResponse> signup(@RequestBody SignUpRequest signUpRequest) {
+        userService.signUp(signUpRequest);
         return new ResponseEntity<>(BaseResponse.builder().message("성공").build(), HttpStatus.CREATED);
     }
 
     @PostMapping("/signin")
-    private String signin() {
+    public String signin() {
         return "index";
     }
 
     @GetMapping("/exist")
-    private String existUsername(@RequestParam String username) {
+    public String existUsername(@RequestParam String username) {
         return username;
     }
 
     @GetMapping("/profile")
-    private String getProfile(@RequestParam String nickname) {
+    public String getProfile(@RequestParam String nickname) {
         return nickname;
     }
 
     @PutMapping("/profile")
-    private String putProfile(String nickname) {
+    public String putProfile(String nickname) {
         return nickname;
     }
 
     @PostMapping("/add-friend")
-    private String addFriend(String nickname) {
+    public String addFriend(String nickname) {
         return nickname;
     }
 
     @GetMapping("/friends")
-    private String getFriends() {
+    public String getFriends() {
         return "1";
     }
 

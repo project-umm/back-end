@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "dm")
+@Table(name = "dms")
 public class Dm extends BaseEntity {
 
     @Id
