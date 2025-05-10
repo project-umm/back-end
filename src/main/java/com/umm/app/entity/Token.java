@@ -3,8 +3,6 @@ package com.umm.app.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @Entity

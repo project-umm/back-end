@@ -1,6 +1,7 @@
 package com.umm.app.controller;
 
 import com.umm.app.dto.BaseResponse;
+import com.umm.app.dto.SignInRequest;
 import com.umm.app.dto.SignUpRequest;
 import com.umm.app.service.UserService;
 
@@ -21,11 +22,12 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<BaseResponse> signup(@RequestBody SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
-        return new ResponseEntity<>(BaseResponse.builder().message("성공").build(), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.builder().message("회원을 성공적으로 등록했습니다.").build());
     }
 
     @PostMapping("/signin")
-    public String signin() {
+    public String signin(@RequestBody SignInRequest signInRequest) {
+        userService.signIn(signInRequest);
         return "index";
     }
 
