@@ -71,7 +71,7 @@ public class JwtProvider {
     }
 
     public String generateRefreshToken() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replace("-","");
     }
 
     public Authentication getAuthentication(String token) {
@@ -95,7 +95,7 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(principal, null, authorities);
     }
 
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -105,52 +105,25 @@ public class JwtProvider {
 
             String tokenType = claims.get("type", String.class);
             if (!"access".equals(tokenType)) {
-                throw new BaseException(400, "해당 토큰은 유효하지 않은 토큰 타입입니다. : " + tokenType);
+                throw new BaseException(401, "해당 토큰은 유효하지 않은 토큰 타입입니다. : " + tokenType);
             }
 
             if (claims.getExpiration().before(new Date())) {
                 throw new BaseException(401, "기간이 유효하지 않은 토큰입니다.");
             }
-
-            return true;
         } catch (ExpiredJwtException e) {
             throw new BaseException(401, "만료된 토큰입니다. : ");
         } catch (Exception e) {
-            throw new BaseException(400, "토큰 발급 중 예기치 못한 장애가 발생했습니다. : " + e.getMessage());
-        }
-    }
-
-    public boolean validateRefreshToken(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            // 리프레시 토큰 타입 검증
-            String tokenType = claims.get("type", String.class);
-            if (!"refresh".equals(tokenType)) {
-                log.info("Invalid refresh token type: {}", tokenType);
-                return false;
-            }
-
-            return !claims.getExpiration().before(new Date());
-        } catch (Exception e) {
-            log.error("Refresh token validation failed", e);
-            return false;
+            throw new BaseException(500, "토큰 발급 중 예기치 못한 장애가 발생했습니다. \n 사유 : " + e.getMessage());
         }
     }
 
     private Claims parseClaims(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
-        }
+        validateToken(token);
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
