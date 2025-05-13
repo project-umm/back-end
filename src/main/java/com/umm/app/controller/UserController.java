@@ -2,6 +2,7 @@ package com.umm.app.controller;
 
 import com.umm.app.dto.BaseResponse;
 import com.umm.app.dto.SignInRequest;
+import com.umm.app.dto.SignInResponse;
 import com.umm.app.dto.SignUpRequest;
 import com.umm.app.service.UserService;
 
@@ -26,9 +27,9 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public String signin(@RequestBody SignInRequest signInRequest) {
-        userService.signIn(signInRequest);
-        return "index";
+    public ResponseEntity<SignInResponse> signin(@RequestBody SignInRequest signInRequest) {
+        SignInResponse response = userService.signIn(signInRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/exist")

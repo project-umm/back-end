@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class SignInResponse {
 
+    private String grantType;
     private String access;
     private String refresh;
 }

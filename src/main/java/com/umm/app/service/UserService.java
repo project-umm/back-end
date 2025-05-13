@@ -1,9 +1,12 @@
 package com.umm.app.service;
 
 import com.umm.app.dto.SignInRequest;
+import com.umm.app.dto.SignInResponse;
 import com.umm.app.dto.SignUpRequest;
 import com.umm.app.entity.User;
+import com.umm.app.repository.TokenRepository;
 import com.umm.app.repository.UserRepository;
+import com.umm.app.util.JwtProvider;
 import com.umm.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +23,9 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final JwtProvider jwtProvider;
 
     public void signUp(SignUpRequest signUpRequest) {
 
@@ -43,15 +47,16 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void signIn(SignInRequest signInRequest) {
+    public SignInResponse signIn(SignInRequest signInRequest) {
 
-        User user = userRepository.findByUsername(signInRequest.getUsername()).orElseThrow(() -> new BaseException(404, "존재하지 않는 유저입니다."));
+        User user = userRepository.findByUsername(signInRequest.getUsername()).orElseThrow(() -> new BaseException(400, "존재하지 않는 유저이거나 틀린 비밀번호 입니다."));
+
+        if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())){
+            throw new BaseException(400, "존재하지 않는 유저이거나 틀린 비밀번호 입니다.");
+        }
 
         Authentication authUser = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-        System.out.println(authUser.toString());
-        System.out.println(user.getPassword());
-        System.out.println(passwordEncoder.encode(signInRequest.getPassword()));
-        System.out.println(passwordEncoder.matches(signInRequest.getPassword(), user.getPassword()));
 
+        return jwtProvider.generateToken(authUser);
     }
 }
