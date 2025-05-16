@@ -12,7 +12,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "https://project-umm.com",
+                        "https://www.project-umm.com",
                         "https://server.project-umm.com",
+                        "https://www.server.project-umm.com",
                         "http://localhost:8000"
                 )
                 .allowedMethods("*");
