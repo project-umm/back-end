@@ -35,7 +35,7 @@ public class SecurityConfig{
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "https://project-umm.com",
-                "https://server.project-umm.com",
+                "https://*.project-umm.com",
                 "http://localhost:3000",
                 "http://localhost:8000"
         ));
