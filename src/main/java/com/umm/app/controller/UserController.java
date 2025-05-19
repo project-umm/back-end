@@ -6,6 +6,7 @@ import com.umm.app.dto.SignInResponse;
 import com.umm.app.dto.SignUpRequest;
 import com.umm.app.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<SignInResponse> signin(@RequestBody SignInRequest signInRequest) {
-        SignInResponse response = userService.signIn(signInRequest);
+    public ResponseEntity<SignInResponse> signin(@RequestBody SignInRequest signInRequest, HttpServletRequest request) {
+        SignInResponse response = userService.signIn(signInRequest, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

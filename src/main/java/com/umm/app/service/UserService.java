@@ -3,19 +3,27 @@ package com.umm.app.service;
 import com.umm.app.dto.SignInRequest;
 import com.umm.app.dto.SignInResponse;
 import com.umm.app.dto.SignUpRequest;
+import com.umm.app.entity.Token;
 import com.umm.app.entity.User;
 import com.umm.app.repository.TokenRepository;
 import com.umm.app.repository.UserRepository;
+import com.umm.app.util.ClientUtil;
 import com.umm.app.util.JwtProvider;
 import com.umm.exception.BaseException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +34,7 @@ public class UserService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final ClientUtil clientUtil;
 
     public void signUp(SignUpRequest signUpRequest) {
 
@@ -47,7 +56,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public SignInResponse signIn(SignInRequest signInRequest) {
+    public SignInResponse signIn(SignInRequest signInRequest, HttpServletRequest request) {
 
         User user = userRepository.findByUsername(signInRequest.getUsername()).orElseThrow(() -> new BaseException(400, "존재하지 않는 유저이거나 틀린 비밀번호 입니다."));
 
@@ -56,7 +65,32 @@ public class UserService {
         }
 
         Authentication authUser = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+        SignInResponse response = jwtProvider.generateToken(authUser);
 
-        return jwtProvider.generateToken(authUser);
+        saveRefresh(user, response.getRefresh(), clientUtil.getClientIp(request));
+
+        return response;
+    }
+
+    public void saveRefresh(User user, String refresh, String clientIp){
+
+        validRefresh();
+
+        long now = System.currentTimeMillis();
+        Date refreshTokenExpiresIn = new Date(now + 1800000); // 30분
+
+        Token token = tokenRepository.save(
+                Token.builder()
+                        .user(user)
+                        .refresh(refresh)
+                        .expireAt(refreshTokenExpiresIn)
+                        .lastLoginLocation(clientIp)
+                        .isExpired(false)
+                        .build());
+        return;
+    };
+
+    public void validRefresh(){
+        return;
     }
 }
