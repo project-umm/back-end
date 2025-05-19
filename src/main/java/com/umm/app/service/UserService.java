@@ -1,8 +1,6 @@
 package com.umm.app.service;
 
-import com.umm.app.dto.SignInRequest;
-import com.umm.app.dto.SignInResponse;
-import com.umm.app.dto.SignUpRequest;
+import com.umm.app.dto.*;
 import com.umm.app.entity.Token;
 import com.umm.app.entity.User;
 import com.umm.app.repository.TokenRepository;
@@ -24,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -92,5 +91,19 @@ public class UserService {
 
     public void validRefresh(){
         return;
+    }
+
+    public ExistUsernameReponse existUsername(ExistUsernameRequest existUsernameRequest) {
+        boolean exist = false;
+        String message = "사용 가능한 이름입니다.";
+        Optional<User> user = userRepository.findByUsername(existUsernameRequest.getUsername());
+
+        if (user.isPresent()){
+            exist = true;
+            message = "이미 존재하는 이름입니다.";
+        }
+
+        return ExistUsernameReponse.builder().exist(exist).message(message).build();
+
     }
 }

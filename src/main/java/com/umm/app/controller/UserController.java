@@ -1,9 +1,6 @@
 package com.umm.app.controller;
 
-import com.umm.app.dto.BaseResponse;
-import com.umm.app.dto.SignInRequest;
-import com.umm.app.dto.SignInResponse;
-import com.umm.app.dto.SignUpRequest;
+import com.umm.app.dto.*;
 import com.umm.app.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,28 +31,21 @@ public class UserController {
     }
 
     @GetMapping("/exist")
-    public String existUsername(@RequestParam String username) {
-        return username;
+    public ResponseEntity<ExistUsernameReponse> existUsername(@RequestParam ExistUsernameRequest username) {
+        ExistUsernameReponse response = userService.existUsername(username);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/profile")
     public String getProfile(@RequestParam String nickname) {
+        // TODO
         return nickname;
     }
 
     @PutMapping("/profile")
     public String putProfile(String nickname) {
+        // TODO
         return nickname;
-    }
-
-    @PostMapping("/add-friend")
-    public String addFriend(String nickname) {
-        return nickname;
-    }
-
-    @GetMapping("/friends")
-    public String getFriends() {
-        return "1";
     }
 
 }
