@@ -18,20 +18,20 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/")
-    public ResponseEntity<PageableUserResponse> signup(@RequestParam String nickname) {
+    @GetMapping
+    public ResponseEntity<PageableUserResponse> listUsers(@RequestParam String nickname) {
         PageableUserResponse response = userService.listUsers(nickname);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<BaseResponse> signup(@RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<BaseResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.builder().message("회원을 성공적으로 등록했습니다.").build());
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<SignInResponse> signin(@RequestBody SignInRequest signInRequest, HttpServletRequest request) {
+    public ResponseEntity<SignInResponse> signIn(@RequestBody SignInRequest signInRequest, HttpServletRequest request) {
         SignInResponse response = userService.signIn(signInRequest, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -42,16 +42,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/profile")
-    public String getProfile(@RequestParam String nickname) {
-        // TODO
-        return nickname;
-    }
-
-    @PutMapping("/profile")
-    public String putProfile(String nickname) {
-        // TODO
-        return nickname;
-    }
+//    @GetMapping("/profile")
+//    public ResponseEntity<String> getProfile(@RequestParam String nickname) {
+//        // TODO
+//        return ResponseEntity.status(HttpStatus.OK).body(nickname);
+//    }
+//
+//    @PutMapping("/profile")
+//    public ResponseEntity<String> putProfile(@RequestBody String nickname) {
+//        // TODO
+//        return ResponseEntity.status(HttpStatus.OK).body(nickname);
+//    }
 
 }
