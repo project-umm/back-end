@@ -18,6 +18,12 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/")
+    public ResponseEntity<PageableUserResponse> signup(@RequestParam String nickname) {
+        PageableUserResponse response = userService.listUsers(nickname);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<BaseResponse> signup(@RequestBody SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);

@@ -20,8 +20,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -105,5 +107,19 @@ public class UserService {
 
         return ExistUsernameReponse.builder().exist(exist).message(message).build();
 
+    }
+
+    public PageableUserResponse listUsers(@RequestParam String nickname){
+        // TODO 친구 여부 확인
+        List<User> users = userRepository.findByNicknameContaining(nickname);
+
+        return PageableUserResponse
+                .builder()
+                .users(users.stream().map(user -> PageableUserResponse.Users.builder()
+                    .profileUrl(user.getProfileUrl())
+                    .nickname(user.getNickname())
+                    .username(user.getUsername())
+                    .build()).toList())
+                .build();
     }
 }
