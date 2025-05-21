@@ -51,7 +51,7 @@ public class UserService {
                 .isActive(true)
                 .email(null)
                 .role(null)
-                .profileUrl(null)
+                .profileUrl("")
                 .phoneNumber(null)
                 .build();
 
