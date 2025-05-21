@@ -8,7 +8,9 @@ public class ClientUtil {
 
     public String getClientIp(HttpServletRequest request) {
         String clientIp = request.getHeader("X-Forwarded-For");
-
+        System.out.println(clientIp);
+        System.out.println("x-real-ip: "+request.getHeader("X-Real-IP"));
+        System.out.println("remoteAddr: "+request.getRemoteAddr());
         if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
             clientIp = request.getHeader("X-Real-IP");
         }

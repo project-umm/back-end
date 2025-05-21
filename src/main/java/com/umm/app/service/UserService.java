@@ -128,4 +128,24 @@ public class UserService {
         User user = customUserDetails.getUser();
         return ProfileResponse.builder().profileUrl(user.getProfileUrl()).build();
     }
+    
+    public RenewRefreshResponse renewRefresh(RenewRefreshRequest renewRefreshRequest, HttpServletRequest request) {
+
+        Token token = tokenRepository.findByRefresh(renewRefreshRequest.getRefresh()).orElseThrow(() -> new BaseException(400, "잘못된 토큰입니다."));
+//
+        String clientIP = clientUtil.getClientIp(request);
+
+        if (!token.getLastLoginLocation().equals(clientIP)){
+            throw new BaseException(401, "로그인 정보가 기존과 일치하지 않습니다.");
+        }
+
+        User user = token.getUser();
+
+        Authentication authUser = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+        SignInResponse response = jwtProvider.generateToken(authUser);
+
+        saveRefresh(user, response.getRefresh(), clientIP);
+
+        return RenewRefreshResponse.builder().access(response.getAccess()).refresh(response.getRefresh()).build();
+    }
 }

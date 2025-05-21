@@ -50,6 +50,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PostMapping("/token/refresh")
+    public ResponseEntity<RenewRefreshResponse> renewRefresh(@RequestBody RenewRefreshRequest renewRefreshRequest, HttpServletRequest request) {
+        RenewRefreshResponse response = userService.renewRefresh(renewRefreshRequest, request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 //    @PutMapping("/profile")
 //    public ResponseEntity<String> putProfile(@RequestBody String nickname) {
 //        // TODO
