@@ -3,6 +3,7 @@ package com.umm.app.service;
 import com.umm.app.dto.*;
 import com.umm.app.entity.Token;
 import com.umm.app.entity.User;
+import com.umm.app.impl.CustomUserDetails;
 import com.umm.app.repository.TokenRepository;
 import com.umm.app.repository.UserRepository;
 import com.umm.app.util.ClientUtil;
@@ -121,5 +122,10 @@ public class UserService {
                     .username(user.getUsername())
                     .build()).toList())
                 .build();
+    }
+
+    public ProfileResponse getMyProfile(CustomUserDetails customUserDetails){
+        User user = customUserDetails.getUser();
+        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).build();
     }
 }

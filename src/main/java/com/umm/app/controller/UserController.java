@@ -1,6 +1,7 @@
 package com.umm.app.controller;
 
 import com.umm.app.dto.*;
+import com.umm.app.impl.CustomUserDetails;
 import com.umm.app.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -42,12 +44,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    @GetMapping("/profile")
-//    public ResponseEntity<String> getProfile(@RequestParam String nickname) {
-//        // TODO
-//        return ResponseEntity.status(HttpStatus.OK).body(nickname);
-//    }
-//
+    @GetMapping("/my-profile")
+    public ResponseEntity<ProfileResponse> getMyProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        ProfileResponse response = userService.getMyProfile(customUserDetails);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 //    @PutMapping("/profile")
 //    public ResponseEntity<String> putProfile(@RequestBody String nickname) {
 //        // TODO
