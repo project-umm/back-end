@@ -29,7 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String auth = request.getHeader("Authorization");
 
-        if (auth == null) {
+        if (auth == null || isPublicApi(path)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -72,10 +72,11 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
-//    private boolean isPublicApi(String path) {
-//        return "/api/test".equals(path) ||
-//                path.startsWith("/api/prefix");
-//    }
+    private boolean isPublicApi(String path) {
+        return "/api/users/signup".equals(path) ||
+                "/api/users/signin".equals(path);
+//                path.startsWith("/api/sign");
+    }
 
     private String resolveToken(String auth) {
         if (!StringUtils.hasText(auth) && auth.startsWith("Bearer ")) {
