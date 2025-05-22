@@ -8,6 +8,7 @@ import com.umm.app.repository.TokenRepository;
 import com.umm.app.repository.UserRepository;
 import com.umm.app.util.ClientUtil;
 import com.umm.app.auth.JwtProvider;
+import com.umm.app.valid.CommonValidation;
 import com.umm.exception.BaseException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -90,23 +91,15 @@ public class UserService {
 
     }
 
-    public PageableUserResponse listUsers(@RequestParam String nickname){
-        // TODO 친구 여부 확인
-        List<User> users = userRepository.findByNicknameContaining(nickname);
+    public ProfileResponse getProfile(String username){
 
-        return PageableUserResponse
-                .builder()
-                .users(users.stream().map(user -> PageableUserResponse.Users.builder()
-                    .profileUrl(user.getProfileUrl())
-                    .nickname(user.getNickname())
-                    .username(user.getUsername())
-                    .build()).toList())
-                .build();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(404, "존재하지 않는 유저입니다."));
+
+        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).nickname(user.getNickname()).build();
     }
-
     public ProfileResponse getMyProfile(CustomUserDetails customUserDetails){
 
-        validateCustomUser(customUserDetails);
+        CommonValidation.validateCustomUser(customUserDetails);
 
         User user = customUserDetails.getUser();
 
@@ -144,11 +137,7 @@ public class UserService {
             throw new BaseException(400, "이미 존재하는 유저 이름입니다.");
         };
     }
-    private void validateCustomUser(CustomUserDetails customUserDetails){
-        if (customUserDetails == null){
-            throw new BaseException(401, "로그인이 필요한 정보입니다.");
-        }
-    }
+
     private void validateSignIn(String requestPassword, String userPassword){
         if (!passwordEncoder.matches(requestPassword, userPassword)){
             throw new BaseException(400, "존재하지 않는 유저이거나 틀린 비밀번호 입니다.");
