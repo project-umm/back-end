@@ -13,5 +13,6 @@ import lombok.*;
 public class ProfileResponse {
 
     private String profileUrl;
+    private String username;
     private String nickname;
 }

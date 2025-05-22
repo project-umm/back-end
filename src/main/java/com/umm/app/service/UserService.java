@@ -95,7 +95,7 @@ public class UserService {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(404, "존재하지 않는 유저입니다."));
 
-        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).nickname(user.getNickname()).build();
+        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).nickname(user.getNickname()).username(user.getUsername()).build();
     }
     public ProfileResponse getMyProfile(CustomUserDetails customUserDetails){
 
@@ -103,7 +103,7 @@ public class UserService {
 
         User user = customUserDetails.getUser();
 
-        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).nickname(user.getNickname()).build();
+        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).nickname(user.getNickname()).username(user.getUsername()).build();
     }
     
     public RenewRefreshResponse renewRefresh(RenewRefreshRequest renewRefreshRequest, HttpServletRequest request) {
