@@ -1,5 +1,7 @@
 package com.umm.app.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.umm.app.entity.User;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -20,11 +22,11 @@ public class PageableUserResponse {
     @NoArgsConstructor
     @Getter
     @ToString
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class Users {
         private String profileUrl;
         private String nickname;
         private String username;
-        private Boolean isFriend;
     }
 
 }
