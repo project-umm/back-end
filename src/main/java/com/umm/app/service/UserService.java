@@ -7,17 +7,12 @@ import com.umm.app.impl.CustomUserDetails;
 import com.umm.app.repository.TokenRepository;
 import com.umm.app.repository.UserRepository;
 import com.umm.app.util.ClientUtil;
-import com.umm.app.util.JwtProvider;
+import com.umm.app.auth.JwtProvider;
 import com.umm.exception.BaseException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,7 +37,7 @@ public class UserService {
 
         validateUser(signUpRequest);
 
-        User user = User.builder()
+        userRepository.save(User.builder()
                 .username(signUpRequest.getUsername())
                 .nickname(signUpRequest.getNickname())
                 .password(passwordEncoder.encode(signUpRequest.getPassword()))
@@ -51,9 +46,7 @@ public class UserService {
                 .role(null)
                 .profileUrl("")
                 .phoneNumber(null)
-                .build();
-
-        userRepository.save(user);
+                .build());
     }
 
     public SignInResponse signIn(SignInRequest signInRequest, HttpServletRequest request) {
@@ -63,20 +56,17 @@ public class UserService {
         validateSignIn(signInRequest.getPassword(), user.getPassword());
 
         SignInResponse response = jwtProvider.generateToken(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-        String clientIp = clientUtil.getClientIp(request);
 
-        saveRefresh(user, response.getRefresh(), clientIp);
+        saveRefresh(user, response.getRefresh(), clientUtil.getClientIp(request));
 
         return response;
     }
 
     public void saveRefresh(User user, String refresh, String clientIp){
-
-        long now = System.currentTimeMillis();
         // 1000ms * 60s * 60m * 72h
-        Date refreshTokenExpiresIn = new Date(now + 1000 * 60 * 60 * 72);
+        Date refreshTokenExpiresIn = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 72);
 
-        Token token = tokenRepository.save(
+        tokenRepository.save(
                 Token.builder()
                         .user(user)
                         .refresh(refresh)
@@ -84,7 +74,6 @@ public class UserService {
                         .lastLoginLocation(clientIp)
                         .isExpired(false)
                         .build());
-        return;
     };
 
     public ExistUsernameReponse existUsername(ExistUsernameRequest existUsernameRequest) {
@@ -116,8 +105,12 @@ public class UserService {
     }
 
     public ProfileResponse getMyProfile(CustomUserDetails customUserDetails){
+
+        validateCustomUser(customUserDetails);
+
         User user = customUserDetails.getUser();
-        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).build();
+
+        return ProfileResponse.builder().profileUrl(user.getProfileUrl()).nickname(user.getNickname()).build();
     }
     
     public RenewRefreshResponse renewRefresh(RenewRefreshRequest renewRefreshRequest, HttpServletRequest request) {
@@ -150,6 +143,11 @@ public class UserService {
         if (userRepository.findByUsername(signUpRequest.getUsername()).isPresent()){
             throw new BaseException(400, "이미 존재하는 유저 이름입니다.");
         };
+    }
+    private void validateCustomUser(CustomUserDetails customUserDetails){
+        if (customUserDetails == null){
+            throw new BaseException(401, "로그인이 필요한 정보입니다.");
+        }
     }
     private void validateSignIn(String requestPassword, String userPassword){
         if (!passwordEncoder.matches(requestPassword, userPassword)){

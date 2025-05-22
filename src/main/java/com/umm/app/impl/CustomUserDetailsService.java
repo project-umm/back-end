@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService{
 
     private final UserRepository userRepository;
 
@@ -17,7 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return CustomUserDetails.of(user);
     }
     @Override
-    public CustomUserDetails loadUserByUsername(String username){
+    public CustomUserDetails loadUserByUsername(String username) throws RuntimeException{
         return userRepository.findByUsername(username).map(this::createCustomUserDetails).orElseThrow(()-> new BaseException(404, "존재하지 않는 유저입니다."));
     }
 }
