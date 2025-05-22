@@ -40,9 +40,7 @@ public class UserService {
 
     public void signUp(SignUpRequest signUpRequest) {
 
-        if (userRepository.findByUsername(signUpRequest.getUsername()).isPresent()){
-            throw new BaseException(400, "이미 존재하는 유저입니다.");
-        };
+        validateUser(signUpRequest);
 
         User user = User.builder()
                 .username(signUpRequest.getUsername())
@@ -62,24 +60,21 @@ public class UserService {
 
         User user = userRepository.findByUsername(signInRequest.getUsername()).orElseThrow(() -> new BaseException(400, "존재하지 않는 유저이거나 틀린 비밀번호 입니다."));
 
-        if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())){
-            throw new BaseException(400, "존재하지 않는 유저이거나 틀린 비밀번호 입니다.");
-        }
+        validateSignIn(signInRequest.getPassword(), user.getPassword());
 
-        Authentication authUser = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-        SignInResponse response = jwtProvider.generateToken(authUser);
+        SignInResponse response = jwtProvider.generateToken(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        String clientIp = clientUtil.getClientIp(request);
 
-        saveRefresh(user, response.getRefresh(), clientUtil.getClientIp(request));
+        saveRefresh(user, response.getRefresh(), clientIp);
 
         return response;
     }
 
     public void saveRefresh(User user, String refresh, String clientIp){
 
-        validRefresh();
-
         long now = System.currentTimeMillis();
-        Date refreshTokenExpiresIn = new Date(now + 1800000); // 30분
+        // 1000ms * 60s * 60m * 72h
+        Date refreshTokenExpiresIn = new Date(now + 1000 * 60 * 60 * 72);
 
         Token token = tokenRepository.save(
                 Token.builder()
@@ -92,18 +87,14 @@ public class UserService {
         return;
     };
 
-    public void validRefresh(){
-        return;
-    }
-
     public ExistUsernameReponse existUsername(ExistUsernameRequest existUsernameRequest) {
         boolean exist = false;
-        String message = "사용 가능한 이름입니다.";
+        String message = "사용 가능한 유저 이름입니다.";
         Optional<User> user = userRepository.findByUsername(existUsernameRequest.getUsername());
 
         if (user.isPresent()){
             exist = true;
-            message = "이미 존재하는 이름입니다.";
+            message = "이미 존재하는 유저 이름입니다.";
         }
 
         return ExistUsernameReponse.builder().exist(exist).message(message).build();
@@ -132,20 +123,54 @@ public class UserService {
     public RenewRefreshResponse renewRefresh(RenewRefreshRequest renewRefreshRequest, HttpServletRequest request) {
 
         Token token = tokenRepository.findByRefresh(renewRefreshRequest.getRefresh()).orElseThrow(() -> new BaseException(400, "잘못된 토큰입니다."));
-//
-        String clientIP = clientUtil.getClientIp(request);
+        String clientIp = clientUtil.getClientIp(request);
 
-        if (!token.getLastLoginLocation().equals(clientIP)){
-            throw new BaseException(401, "로그인 정보가 기존과 일치하지 않습니다.");
-        }
+        validateRefresh(token, clientIp);
 
         User user = token.getUser();
 
         Authentication authUser = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
         SignInResponse response = jwtProvider.generateToken(authUser);
 
-        saveRefresh(user, response.getRefresh(), clientIP);
+        saveRefresh(user, response.getRefresh(), clientIp);
 
         return RenewRefreshResponse.builder().access(response.getAccess()).refresh(response.getRefresh()).build();
+    }
+
+    private void validateUser(SignUpRequest signUpRequest){
+        if (signUpRequest.getUsername().isBlank()){
+            throw new BaseException(400, "유저 이름을 입력해주세요.");
+        };
+        if (signUpRequest.getUsername().contains(" ")){
+            throw new BaseException(400, "유저 이름에 공백을 포함할 수 없습니다.");
+        };
+        if (signUpRequest.getUsername().length() < 2){
+            throw new BaseException(400, "유저 이름은 최소 2글자 이상입니다.");
+        };
+        if (userRepository.findByUsername(signUpRequest.getUsername()).isPresent()){
+            throw new BaseException(400, "이미 존재하는 유저 이름입니다.");
+        };
+    }
+    private void validateSignIn(String requestPassword, String userPassword){
+        if (!passwordEncoder.matches(requestPassword, userPassword)){
+            throw new BaseException(400, "존재하지 않는 유저이거나 틀린 비밀번호 입니다.");
+        }
+    }
+
+    private void validateRefresh(Token token, String clientIp){
+
+        if (!token.getLastLoginLocation().equals(clientIp)){
+            throw new BaseException(401, "로그인 정보가 기존과 일치하지 않습니다.");
+        }
+
+        if (token.getIsExpired()){
+            throw new BaseException(401, "만료된 리프레쉬 토큰입니다.");
+        }
+
+        Date now = new Date(System.currentTimeMillis());
+        if (now.after(token.getExpireAt())){
+            token.setIsExpired(true);
+            throw new BaseException(401, "만료된 리프레쉬 토큰입니다.");
+        }
     }
 }

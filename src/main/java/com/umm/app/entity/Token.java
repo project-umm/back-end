@@ -2,8 +2,11 @@ package com.umm.app.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,9 +18,9 @@ import java.util.Date;
 public class Token extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(unique = true, nullable = false, updatable = false)
-    private Integer id;
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

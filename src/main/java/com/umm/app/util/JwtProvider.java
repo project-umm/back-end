@@ -71,7 +71,7 @@ public class JwtProvider {
     }
 
     public String generateRefreshToken() {
-        return UUID.randomUUID().toString().replace("-","");
+        return (UUID.randomUUID().toString() + UUID.randomUUID() + UUID.randomUUID()).replace("-","");
     }
 
     public Authentication getAuthentication(String token) {
