@@ -1,4 +1,4 @@
-package com.umm.app.util;
+package com.umm.app.auth;
 
 import com.umm.app.dto.SignInResponse;
 import com.umm.exception.BaseException;
@@ -71,7 +71,7 @@ public class JwtProvider {
     }
 
     public String generateRefreshToken() {
-        return UUID.randomUUID().toString().replace("-","");
+        return (UUID.randomUUID().toString() + UUID.randomUUID() + UUID.randomUUID()).replace("-","");
     }
 
     public Authentication getAuthentication(String token) {
@@ -95,7 +95,7 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(principal, null, authorities);
     }
 
-    public void validateToken(String token) {
+    public Boolean validateToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -116,6 +116,7 @@ public class JwtProvider {
         } catch (Exception e) {
             throw new BaseException(500, "토큰 발급 중 예기치 못한 장애가 발생했습니다. \n 사유 : " + e.getMessage());
         }
+        return true;
     }
 
     private Claims parseClaims(String token) {

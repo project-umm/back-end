@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Getter
 @ToString
-public class BaseResponse {
+public class ExistUsernameReponse extends BaseResponse{
 
-    private String message;
+    private Boolean exist;
 }

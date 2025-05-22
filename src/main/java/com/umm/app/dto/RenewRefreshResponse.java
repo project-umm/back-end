@@ -7,8 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @ToString
-public class ErrorResponse {
+public class RenewRefreshResponse {
 
-    private String message;
-    private String customMessage;
+    private String access;
+    private String refresh;
 }

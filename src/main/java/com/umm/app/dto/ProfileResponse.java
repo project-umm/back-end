@@ -7,8 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @ToString
-public class ErrorResponse {
+public class ProfileResponse {
 
-    private String message;
-    private String customMessage;
+    private String profileUrl;
+    private String nickname;
 }
