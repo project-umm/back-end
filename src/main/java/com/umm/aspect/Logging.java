@@ -98,11 +98,14 @@ public class Logging {
         String methodName = joinPoint.getSignature().getName();
         String exceptionType = exception.getClass().getSimpleName();
         String exceptionMessage = exception.getMessage();
-        String stackTrace = Arrays.toString(exception.getStackTrace());
+
+        // LOG LEVEL => INFO 시 StackTrace 출력
+        if (log.isInfoEnabled()){
+            exception.printStackTrace();
+        };
 
         log.error("|{}| {}.{} encountered an ERROR!!! at {}", requestId, className, methodName, timestamp);
         log.error("|{}| Exception: {}, {}", requestId, exceptionType, exceptionMessage);
-        log.error("|{}| Stack Trace: {}", requestId, stackTrace);
     }
 
     @AfterReturning(pointcut = CONTROLLER, returning = "result")
