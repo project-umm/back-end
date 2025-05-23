@@ -99,11 +99,6 @@ public class Logging {
         String exceptionType = exception.getClass().getSimpleName();
         String exceptionMessage = exception.getMessage();
 
-        // LOG LEVEL => INFO 시 StackTrace 출력
-        if (log.isInfoEnabled()){
-            exception.printStackTrace();
-        };
-
         log.error("|{}| {}.{} encountered an ERROR!!! at {}", requestId, className, methodName, timestamp);
         log.error("|{}| Exception: {}, {}", requestId, exceptionType, exceptionMessage);
     }

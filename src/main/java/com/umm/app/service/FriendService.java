@@ -13,10 +13,8 @@ import com.umm.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -31,13 +29,13 @@ public class FriendService {
 
         CommonValidation.validateCustomUser(customUserDetails);
 
-        // TODO 친구 여부 확인
-        List<User> users = userRepository.findByNicknameContaining(nickname);
-        List<UserFriend> friends = userFriendRepository.findAllByUser(customUserDetails.getUser());
+        List<User> searchUsers = userRepository.findByNicknameContaining(nickname);
+        List<UserFriend> friendUsers = userFriendRepository.findAllByUser(customUserDetails.getUser());
+        List <User> filteredUser = filterUsers(customUserDetails.getUser(), searchUsers, friendUsers);
 
         return PageableUserResponse
                 .builder()
-                .users(users.stream().map(user -> PageableUserResponse.Users.builder()
+                .users(filteredUser.stream().map(user -> PageableUserResponse.Users.builder()
                         .profileUrl(user.getProfileUrl())
                         .nickname(user.getNickname())
                         .username(user.getUsername())
@@ -50,8 +48,8 @@ public class FriendService {
         CommonValidation.validateCustomUser(customUserDetails);
 
         List<UserFriend> friends = userFriendRepository.findAllByUser(customUserDetails.getUser());
-        
-        // TODO : 로직 개선 필요
+
+        // TODO : 로직 개선 필요(N+1)
         return PageableFriendResponse
                 .builder()
                 .friends(friends.stream().map(friend -> PageableFriendResponse.Friend.builder()
@@ -80,24 +78,25 @@ public class FriendService {
 
         if (answerRequest.getAnswer()){
             message = "친구 요청을 수락하셨습니다.";
+
+            CommonValidation.validateUUID(answerRequest.getAskId());
+
+            UserAskFriend ask = userAskFriendRepository.findById(UUID.fromString(answerRequest.getAskId())).orElseThrow(() -> new BaseException(404, "존재하지 않는 친구 요청입니다."));
+
+            User friend = ask.getFriend();
+
+            validateAnswerAsk(customUserDetails.getUser(), friend);
+
+            User askUser = ask.getUser();
+
+            userFriendRepository.save(UserFriend.builder().user(askUser).friend(friend).build());
+            userFriendRepository.save(UserFriend.builder().user(friend).friend(askUser).build());
+
+            // TODO : 역방향 친구 요청 조회 확인 및 조치 필요
+            ask.setIsPending(false);
+            userAskFriendRepository.save(ask);
         }
 
-        CommonValidation.validateUUID(answerRequest.getAskId());
-
-        UserAskFriend ask = userAskFriendRepository.findById(UUID.fromString(answerRequest.getAskId())).orElseThrow(() -> new BaseException(404, "존재하지 않는 친구 요청입니다."));
-
-        User friend = ask.getFriend();
-
-        validateAnswerAsk(customUserDetails.getUser(), friend);
-
-        User askUser = ask.getUser();
-        
-        userFriendRepository.save(UserFriend.builder().user(askUser).friend(friend).build());
-        userFriendRepository.save(UserFriend.builder().user(friend).friend(askUser).build());
-
-        // TODO : 역방향 친구 요청 조회 확인 및 조치 필요
-        ask.setIsPending(false);
-        userAskFriendRepository.save(ask);
         return BaseResponse.builder().message(message).build();
     }
 
@@ -137,5 +136,32 @@ public class FriendService {
             throw new BaseException(403, "수락할 권한이 없는 유저입니다.");
         }
 
+    }
+
+    private List<User> filterUsers(User user, List<User> searchUsers, List<UserFriend> friendUsers){
+
+        List<User> filteredUsers = new ArrayList<>();
+        HashMap<String,Boolean> friends = new HashMap<>();
+
+        for (UserFriend friend: friendUsers){
+            friends.put(friend.getFriend().getUsername(), true);
+        };
+        
+        for(User searchUser:searchUsers){
+            
+            // 본인 제외
+            if (searchUser.getUsername().equals(user.getUsername())){
+                continue;
+            }
+            
+            // 친구 제외
+            if (friends.containsKey(searchUser.getUsername())){
+                continue;
+            }
+
+            filteredUsers.add(searchUser);
+        }
+
+        return filteredUsers;
     }
 }

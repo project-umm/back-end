@@ -17,6 +17,11 @@ public class BaseExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException exc){
 
+        // LOG LEVEL => INFO 시 StackTrace 출력
+        if (log.isInfoEnabled()){
+            exc.printStackTrace();
+        };
+
         ErrorResponse errorResponse = ErrorResponse
                 .builder()
                 .message(exc.getMessage())
@@ -27,7 +32,12 @@ public class BaseExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception exc){
-        
+
+        // LOG LEVEL => INFO 시 StackTrace 출력
+        if (log.isInfoEnabled()){
+            exc.printStackTrace();
+        };
+
         ErrorResponse errorResponse = ErrorResponse
                 .builder()
                 .message(exc.getMessage())
