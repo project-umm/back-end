@@ -53,7 +53,8 @@ public class SecurityConfig{
                 "https://server.project-umm.com",
                 "https://www.server.project-umm.com",
                 "http://localhost:3000",
-                "http://localhost:8000"
+                "http://localhost:8000",
+                "*"
         ));
 
         configuration.setAllowedMethods(Arrays.asList(
