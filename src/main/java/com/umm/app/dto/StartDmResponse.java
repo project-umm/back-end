@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
-import java.util.List;
+import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
@@ -12,10 +12,7 @@ import java.util.List;
 @Getter
 @ToString
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class MainDashboardResponse {
+public class StartDmResponse {
 
-    private Integer alertNumber;
-    private List<PageableDmResponse.Dms> dmUsers;
-    private ProfileResponse myProfile;
-
+    private UUID dmId;
 }
