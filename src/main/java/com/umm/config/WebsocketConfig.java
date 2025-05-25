@@ -1,5 +1,6 @@
 package com.umm.config;
 
+import com.umm.app.impl.StompInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -13,7 +14,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
 
-//    private final StompHandler stompHandler;
+    private final StompInterceptor stompInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config){
@@ -24,11 +25,10 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket").addInterceptors().setAllowedOrigins("*");
-        registry.addEndpoint("/websocket").addInterceptors().setAllowedOrigins("*").withSockJS();
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-//        registration.interceptors(stompHandler);
+        registration.interceptors(stompInterceptor);
     }
 }
