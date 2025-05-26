@@ -95,13 +95,13 @@ public class StompInterceptor implements ChannelInterceptor {
                 log.info("웹소켓 인증 성공: {}", username);
                 log.info(String.valueOf(accessor.getCommand()));
 
-            } catch (Exception e) {
+            } catch (BaseException e) {
                 log.error("웹소켓 인증 실패: {}", e.getMessage());
-                throw new BaseException(400, "웹소켓 인증 실패");
+                throw new BaseException(400, "웹소켓 인증 실패 | 원인: " + e.getMessage());
             }
         } else {
             log.error("Authorization 헤더가 없습니다.");
-            throw new BaseException(401, "인증 정보 없음");
+            throw new BaseException(401, "웹소켓 인증 실패 | 원인 : Authorization 헤더가 존재하지 않습니다.");
         }
     }
 }
