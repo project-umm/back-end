@@ -1,6 +1,7 @@
 package com.umm.app.impl;
 
 import com.umm.app.auth.JwtProvider;
+import com.umm.exception.AuthException;
 import com.umm.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,13 +96,16 @@ public class StompInterceptor implements ChannelInterceptor {
                 log.info("웹소켓 인증 성공: {}", username);
                 log.info(String.valueOf(accessor.getCommand()));
 
+            } catch (AuthException e) {
+                log.error("웹소켓 인증 실패: {}", e.getMessage());
+                throw new AuthException(401, "웹소켓 인증 실패 | 원인: " + e.getMessage());
             } catch (BaseException e) {
                 log.error("웹소켓 인증 실패: {}", e.getMessage());
                 throw new BaseException(400, "웹소켓 인증 실패 | 원인: " + e.getMessage());
             }
         } else {
             log.error("Authorization 헤더가 없습니다.");
-            throw new BaseException(401, "웹소켓 인증 실패 | 원인 : Authorization 헤더가 존재하지 않습니다.");
+            throw new AuthException(401, "웹소켓 인증 실패 | 원인 : Authorization 헤더가 존재하지 않습니다.");
         }
     }
 }

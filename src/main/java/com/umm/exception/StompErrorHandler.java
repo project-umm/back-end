@@ -3,6 +3,7 @@ package com.umm.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umm.app.dto.ErrorResponse;
+import com.umm.app.dto.StompErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -28,33 +29,37 @@ public class StompErrorHandler extends StompSubProtocolErrorHandler {
         if (ex instanceof MessageDeliveryException) {
             Throwable cause = ex.getCause();
             if (cause instanceof AccessDeniedException) {
-                return sendErrorMessage(ErrorResponse.builder().message("웹소켓 에러가 발생했습니다.").customMessage(cause.getMessage()).build());
+                return sendErrorMessage(StompErrorResponse.builder().message("웹소켓 에러가 발생했습니다.").customMessage(cause.getMessage()).statusCode(500).build());
+            }
+
+            if (cause instanceof AuthException) {
+                return sendErrorMessage(StompErrorResponse.builder().message("사용자 웹소켓 에러가 발생했습니다.").customMessage(cause.getMessage()).statusCode(401).build());
             }
 
             if (cause instanceof BaseException) {
-                return sendErrorMessage(ErrorResponse.builder().message("사용자 웹소켓 에러가 발생했습니다.").customMessage(cause.getMessage()).build());
+                return sendErrorMessage(StompErrorResponse.builder().message("사용자 웹소켓 에러가 발생했습니다.").customMessage(cause.getMessage()).statusCode(400).build());
             }
 
             if (cause instanceof Exception) {
-                return sendErrorMessage(ErrorResponse.builder().message("서버에서 웹소켓 에러가 발생했습니다.").customMessage(cause.getMessage()).build());
+                return sendErrorMessage(StompErrorResponse.builder().message("서버에서 웹소켓 에러가 발생했습니다.").customMessage(cause.getMessage()).statusCode(500).build());
             }
 
         }
         return super.handleClientMessageProcessingError(clientMessage, ex);
     }
 
-    private Message<byte[]> sendErrorMessage(ErrorResponse errorResponse) {
+    private Message<byte[]> sendErrorMessage(StompErrorResponse stompErrorResponse) {
         StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.ERROR);
-        headers.setMessage(errorResponse.getMessage());
+        headers.setMessage(stompErrorResponse.getMessage());
         headers.setLeaveMutable(true);
 
         try {
-            String json = objectMapper.writeValueAsString(errorResponse);
+            String json = objectMapper.writeValueAsString(stompErrorResponse);
             return MessageBuilder.createMessage(json.getBytes(StandardCharsets.UTF_8),
                     headers.getMessageHeaders());
         } catch (JsonProcessingException e) {
             log.error("Failed to convert ErrorResponse to JSON", e);
-            return MessageBuilder.createMessage(errorResponse.getMessage().getBytes(StandardCharsets.UTF_8),
+            return MessageBuilder.createMessage(stompErrorResponse.getMessage().getBytes(StandardCharsets.UTF_8),
                     headers.getMessageHeaders());
         }
     }
