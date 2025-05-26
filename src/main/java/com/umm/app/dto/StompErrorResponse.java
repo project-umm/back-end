@@ -2,7 +2,10 @@ package com.umm.app.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
@@ -11,8 +14,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @ToString
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ErrorResponse {
+public class StompErrorResponse extends ErrorResponse {
 
-    private String message;
-    private String customMessage;
+    private Integer statusCode;
 }

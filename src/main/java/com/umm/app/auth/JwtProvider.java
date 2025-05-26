@@ -1,6 +1,7 @@
 package com.umm.app.auth;
 
 import com.umm.app.dto.SignInResponse;
+import com.umm.exception.AuthException;
 import com.umm.exception.BaseException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -79,11 +80,11 @@ public class JwtProvider {
         String tokenType = claims.get("type", String.class);
 
         if (!"access".equals(tokenType)) {
-            throw new BaseException(401, "해당 토큰은 유효하지 않은 토큰 타입입니다. : " + tokenType);
+            throw new AuthException(401, "해당 토큰은 유효하지 않은 토큰 타입입니다. : " + tokenType);
         }
 
         if (claims.get("auth") == null) {
-            throw new BaseException(401, "로그인이 필요합니다.. : " + tokenType);
+            throw new AuthException(401, "로그인이 필요합니다.. : " + tokenType);
         }
 
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
@@ -105,14 +106,14 @@ public class JwtProvider {
 
             String tokenType = claims.get("type", String.class);
             if (!"access".equals(tokenType)) {
-                throw new BaseException(401, "해당 토큰은 유효하지 않은 토큰 타입입니다. : " + tokenType);
+                throw new AuthException(401, "해당 토큰은 유효하지 않은 토큰 타입입니다. : " + tokenType);
             }
 
             if (claims.getExpiration().before(new Date())) {
-                throw new BaseException(401, "기간이 유효하지 않은 토큰입니다.");
+                throw new AuthException(401, "기간이 유효하지 않은 토큰입니다.");
             }
         } catch (ExpiredJwtException e) {
-            throw new BaseException(401, "만료된 엑세스 토큰입니다.");
+            throw new AuthException(401, "만료된 엑세스 토큰입니다.");
         } catch (Exception e) {
             throw new BaseException(500, "토큰 검증 중 예기치 못한 장애가 발생했습니다. | 사유 : " + e.getMessage());
         }

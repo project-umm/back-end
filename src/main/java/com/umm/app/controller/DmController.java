@@ -27,7 +27,7 @@ public class DmController {
     private final DmService dmService;
     private final DmChatService dmChatService;
 
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<StartDmResponse> createDm(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody StartDmRequest startDmRequest) {
         StartDmResponse response = dmService.createDm(customUserDetails, startDmRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -40,7 +40,7 @@ public class DmController {
     }
 
     @GetMapping("/{dmId}")
-    public ResponseEntity<PageableDmChatResponse> listChats(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable UUID dmId, @RequestParam BigInteger key, @RequestParam Integer pageNumber) {
+    public ResponseEntity<PageableDmChatResponse> listChats(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable UUID dmId, @RequestParam BigInteger key, @RequestParam("page_number") Integer pageNumber) {
         PageableDmChatResponse response  = dmChatService.listDmChats(customUserDetails, dmId, key, pageNumber);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
