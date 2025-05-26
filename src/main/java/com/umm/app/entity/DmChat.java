@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Table(name = "dm_chats")
-public class Chat extends BaseEntity {
+public class DmChat extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

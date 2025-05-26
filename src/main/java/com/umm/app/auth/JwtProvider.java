@@ -114,7 +114,7 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             throw new BaseException(401, "만료된 엑세스 토큰입니다.");
         } catch (Exception e) {
-            throw new BaseException(500, "토큰 발급 중 예기치 못한 장애가 발생했습니다. \n 사유 : " + e.getMessage());
+            throw new BaseException(500, "토큰 검증 중 예기치 못한 장애가 발생했습니다. | 사유 : " + e.getMessage());
         }
         return true;
     }

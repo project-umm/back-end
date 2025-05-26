@@ -95,6 +95,9 @@ public class FriendService {
             // TODO : 역방향 친구 요청 조회 확인 및 조치 필요
             ask.setIsPending(false);
             userAskFriendRepository.save(ask);
+        } else {
+            UserAskFriend ask = userAskFriendRepository.findById(UUID.fromString(answerRequest.getAskId())).orElseThrow(() -> new BaseException(404, "존재하지 않는 친구 요청입니다."));
+            userAskFriendRepository.delete(ask);
         }
 
         return BaseResponse.builder().message(message).build();
