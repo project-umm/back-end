@@ -1,9 +1,11 @@
 package com.umm.app.controller;
 
+import com.umm.app.dto.PageableDmChatResponse;
 import com.umm.app.dto.PageableDmResponse;
 import com.umm.app.dto.StartDmRequest;
 import com.umm.app.dto.StartDmResponse;
 import com.umm.app.impl.CustomUserDetails;
+import com.umm.app.service.DmChatService;
 import com.umm.app.service.DmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 @Slf4j
@@ -22,6 +25,7 @@ import java.util.UUID;
 public class DmController {
 
     private final DmService dmService;
+    private final DmChatService dmChatService;
 
     @PostMapping
     public ResponseEntity<StartDmResponse> createDm(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody StartDmRequest startDmRequest) {
@@ -36,8 +40,8 @@ public class DmController {
     }
 
     @GetMapping("/{dmId}")
-    public void listChats(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable UUID dmId) {
-
+    public ResponseEntity<PageableDmChatResponse> listChats(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable UUID dmId, @RequestParam BigInteger key, @RequestParam Integer pageNumber) {
+        PageableDmChatResponse response  = dmChatService.listDmChats(customUserDetails, dmId, key, pageNumber);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
 }

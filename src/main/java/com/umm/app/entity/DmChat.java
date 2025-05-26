@@ -3,6 +3,7 @@ package com.umm.app.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 @Getter
@@ -28,5 +29,8 @@ public class DmChat extends BaseEntity {
 
     @Column(name = "chat_message", nullable = false)
     private String chatMessage;
+
+    @Column(name = "key", nullable = false, insertable = false)
+    private BigInteger key;
 
 }
