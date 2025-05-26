@@ -11,6 +11,6 @@ import java.util.UUID;
 
 public interface DmChatRepository extends JpaRepository<DmChat, UUID> {
 
-    @Query("SELECT c FROM DmChat c WHERE c.dmId = :dmId AND c.key <= :key ORDER BY c.key DESC")
+    @Query("SELECT c FROM DmChat c WHERE c.dmId = :dmId AND c.key <= :key ORDER BY c.key ASC")
     List<DmChat> findDmChatNextPage(UUID dmId, BigInteger key, Pageable pageable);
 }
