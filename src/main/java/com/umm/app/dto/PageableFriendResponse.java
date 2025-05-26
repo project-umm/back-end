@@ -2,7 +2,6 @@ package com.umm.app.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.umm.app.entity.User;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -13,9 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @ToString
-public class PageableUserResponse {
+public class PageableFriendResponse {
 
-    List<Users> users;
+    List<Friend> friends;
 
     @Builder
     @AllArgsConstructor
@@ -23,7 +22,7 @@ public class PageableUserResponse {
     @Getter
     @ToString
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class Users {
+    public static class Friend {
         private String profileUrl;
         private String nickname;
         private String username;

@@ -1,6 +1,8 @@
 package com.umm.app.controller;
 
+import com.umm.app.dto.MainDashboardResponse;
 import com.umm.app.impl.CustomUserDetails;
+import com.umm.app.service.MainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/main")
 public class MainController {
 
+    private final MainService mainService;
+
     @GetMapping("/dashboard")
-    public ResponseEntity<String> getDashboard(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body("Hello");
+    public ResponseEntity<MainDashboardResponse> getDashboard(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        MainDashboardResponse response = mainService.getDashboard(customUserDetails);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

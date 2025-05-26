@@ -10,9 +10,7 @@ import lombok.*;
 @Getter
 @ToString
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class SignInResponse {
+public class DmChatRecv {
 
-    private String grantType;
-    private String access;
-    private String refresh;
+    private String chatMessage;
 }

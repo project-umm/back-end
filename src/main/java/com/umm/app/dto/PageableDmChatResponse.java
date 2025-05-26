@@ -2,20 +2,22 @@ package com.umm.app.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.umm.app.entity.User;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.UUID;
 
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @ToString
-public class PageableUserResponse {
+@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class PageableDmChatResponse extends BasePageableResponse{
 
-    List<Users> users;
+    private List<Chats> chats;
 
     @Builder
     @AllArgsConstructor
@@ -23,10 +25,11 @@ public class PageableUserResponse {
     @Getter
     @ToString
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class Users {
+    public static class Chats {
         private String profileUrl;
         private String nickname;
         private String username;
+        private String chatMessage;
+        private Long createdAt;
     }
-
 }
