@@ -59,8 +59,12 @@ public class DmChatService {
 
         List<DmChat> dmChats= dmChatRepository.findDmChatNextPage(dmId, key, Pageable.ofSize(pageNumber+1));
 
+        Boolean isLast = dmChats.size() != pageNumber+1;
+        BigInteger newKey = dmChats.size() > 0 ? dmChats.getLast().getKey() : BigInteger.ZERO;
+        Integer objectNumber = dmChats.size() == pageNumber+1 ? pageNumber : dmChats.size();
+
         return PageableDmChatResponse.builder()
-                .chats(dmChats.stream().map(
+                .chats(dmChats.subList(0, isLast ? dmChats.size() : objectNumber).stream().map(
                         dmChat -> PageableDmChatResponse.Chats.builder()
                                 .createdAt(dmChat.getCreatedAt().getTime())
                                 .chatMessage(dmChat.getChatMessage())
@@ -69,9 +73,9 @@ public class DmChatService {
                                 .profileUrl(dmChat.getUser().getProfileUrl())
                                 .build()
                 ).toList())
-                .isLast(dmChats.size() != pageNumber+1)
-                .key(dmChats.getLast().getKey())
-                .objectNumber(dmChats.size() == pageNumber+1 ? pageNumber : dmChats.size())
+                .isLast(isLast)
+                .key(newKey)
+                .objectNumber(objectNumber)
                 .build();
     }
 }

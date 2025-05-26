@@ -27,7 +27,7 @@ public class DmController {
     private final DmService dmService;
     private final DmChatService dmChatService;
 
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<StartDmResponse> createDm(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody StartDmRequest startDmRequest) {
         StartDmResponse response = dmService.createDm(customUserDetails, startDmRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
